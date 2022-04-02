@@ -15,7 +15,7 @@ Example:
 
 `icut video.mp4 "00:30-01:00"`
 
-Output would be save to `video_cut.mp4`.
+Output would be saved to `video_cut.mp4`.
 
 ### Queries
 
