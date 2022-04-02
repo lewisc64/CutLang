@@ -1,4 +1,5 @@
-﻿using CutLang.Token;
+﻿using CutLang.Extensions;
+using CutLang.Token;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,7 @@ namespace CutLang
 {
     public class SyntaxParser
     {
-        private static readonly Type[] Precedence = new[] { typeof(ConcatToken), typeof(SpanToken) };
+        private static readonly Type[] Precedence = new[] { typeof(ConcatToken), typeof(SpeedUpToken), typeof(SlowDownToken), typeof(SpanToken) };
 
         private IEnumerable<IToken> _tokens;
 
@@ -61,6 +62,11 @@ namespace CutLang
                         var left = MakeTree(debracketed.Take(i));
                         var right = MakeTree(debracketed.Skip(i + 1));
 
+                        if (!left.Token.OperationCanProduceVideo() || !left.Token.OperationCanProduceVideo())
+                        {
+                            throw new SyntaxParserException($"Both sides of {nameof(ConcatToken)} must be able to produce video.");
+                        }
+
                         return new Node(token)
                         {
                             Left = left,
@@ -81,7 +87,28 @@ namespace CutLang
                         if (right.Token is not TimestampToken && right.Token is not EndOfVideoToken)
                         {
                             throw new SyntaxParserException($"Expected {nameof(TimestampToken)} on the right side of {nameof(SpanToken)}, got {right.Token.GetType().Name}");
+                        }
 
+                        return new Node(token)
+                        {
+                            Left = left,
+                            Right = right,
+                        };
+                    }
+
+                    if (token is SlowDownToken || token is SpeedUpToken)
+                    {
+                        var left = MakeTree(debracketed.Take(i));
+                        var right = MakeTree(debracketed.Skip(i + 1));
+
+                        if (!left.Token.OperationCanProduceVideo())
+                        {
+                            throw new SyntaxParserException($"The left side of {nameof(SlowDownToken)} or {nameof(SpeedUpToken)} must be able to produce video.");
+                        }
+
+                        if (right.Token is not NumberToken)
+                        {
+                            throw new SyntaxParserException($"The right side of {nameof(SlowDownToken)} or {nameof(SpeedUpToken)} must be a number.");
                         }
 
                         return new Node(token)

@@ -1,7 +1,6 @@
 ﻿using CutLang.Execution;
 using CutLang.Execution.Instruction;
 using System;
-using System.Diagnostics;
 using System.IO;
 
 namespace CutLang.Integrations.Ffmpeg.Instructions
@@ -15,10 +14,20 @@ namespace CutLang.Integrations.Ffmpeg.Instructions
         public void Execute(ExecutionContext executionContext)
         {
             var outputPath = executionContext.GetTempVideoPath();
-            Process.Start("ffmpeg", $"-i \"{executionContext.SeedVideo.FullName}\" -ss {Start.TotalSeconds} -to {End.TotalSeconds} -c copy \"{outputPath}\"")
-                .WaitForExit();
 
-            executionContext.SegmentStack.Push(new SegmentReference { File = new FileInfo(outputPath) });
+            try
+            {
+                Utils.Run($"-i \"{executionContext.SeedVideo.FullName}\" -ss {Start.TotalSeconds} -to {End.TotalSeconds} -c copy \"{outputPath}\"").Wait();
+            }
+            finally
+            {
+                executionContext.SegmentStack.Push(new SegmentReference { File = new FileInfo(outputPath) });
+            }
+        }
+
+        public override string ToString()
+        {
+            return $"FFmpeg {nameof(ExtractSegment)} ({Start.TotalSeconds}s-{End.TotalSeconds}s)";
         }
     }
 }

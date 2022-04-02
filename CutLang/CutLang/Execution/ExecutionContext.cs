@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace CutLang.Execution
 {
@@ -13,6 +14,14 @@ namespace CutLang.Execution
         public string GetTempVideoPath()
         {
             return Path.Join(SeedVideo.DirectoryName, $"{Guid.NewGuid()}.mp4");
+        }
+
+        public void CleanUp()
+        {
+            while (SegmentStack.Any())
+            {
+                File.Delete(SegmentStack.Pop().File.FullName);
+            }
         }
     }
 }

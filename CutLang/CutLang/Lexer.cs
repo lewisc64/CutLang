@@ -78,6 +78,28 @@ namespace CutLang
                     return new CloseBracketToken();
                 }
 
+                if (CurrentChar == '>')
+                {
+                    NextChar();
+                    if (CurrentChar == '>')
+                    {
+                        NextChar();
+                        return new SpeedUpToken();
+                    }
+                    throw new LexerException($"Expected '>' as part of {nameof(SpeedUpToken)} at position {_position}, instead got '{CurrentChar}'.");
+                }
+
+                if (CurrentChar == '<')
+                {
+                    NextChar();
+                    if (CurrentChar == '<')
+                    {
+                        NextChar();
+                        return new SlowDownToken();
+                    }
+                    throw new LexerException($"Expected '<' as part of {nameof(SlowDownToken)} at position {_position}, instead got '{CurrentChar}'.");
+                }
+
                 if (CurrentChar == ' ')
                 {
                     NextChar();
@@ -132,12 +154,7 @@ namespace CutLang
             if (builderStack.Count == 1)
             {
                 var text = builderStack.Single().ToString();
-
-                if (text.Contains('.'))
-                {
-                    return new DecimalNumberToken(double.Parse(text));
-                }
-                return new IntegerNumberToken(int.Parse(text));
+                return new NumberToken(double.Parse(text));
             }
 
             double seconds = double.Parse(builderStack.Pop().ToString());

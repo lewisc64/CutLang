@@ -19,24 +19,31 @@ namespace ICut
             if (File.Exists(outputPath))
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"'{outputPath}' already exists.");
+                Console.Error.WriteLine($"'{outputPath}' already exists.");
                 Console.ResetColor();
                 return;
             }
 
             var lexer = new Lexer(program);
-            var syntaxParser = new SyntaxParser(lexer.Tokenise());
+            var tokens = lexer.Tokenise().ToArray();
+
+            var syntaxParser = new SyntaxParser(tokens);
             var tree = syntaxParser.MakeTree();
 
             var factoryProvider = new InstructionFactoryProvider();
             factoryProvider.SetFactory<IExtractSegment>(() => new ExtractSegment());
             factoryProvider.SetFactory<IConcatSegments>(() => new ConcatSegments());
+            factoryProvider.SetFactory<IModifySpeed>(() => new ModifySpeed());
 
             var executor = new Executor();
             var instructions = executor.Instructionise(factoryProvider, tree).ToArray();
-            var executionResultFile = executor.Execute(instructions, inputFile);
 
-            File.Move(executionResultFile.FullName, outputPath);
+            Action<int, int, string> progressCallback = (step, steps, instructionName) =>
+            {
+                Console.WriteLine($"Step {step}/{steps}: {instructionName}");
+            };
+
+            File.Move(executor.Execute(instructions, inputFile, progressCallback: progressCallback).FullName, outputPath);
         }
     }
 }

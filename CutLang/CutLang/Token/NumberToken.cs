@@ -1,20 +1,10 @@
 ﻿namespace CutLang.Token
 {
-    public class DecimalNumberToken : IToken
+    public class NumberToken : IToken
     {
         public double Value { get; }
 
-        public DecimalNumberToken(double value)
-        {
-            Value = value;
-        }
-    }
-
-    public class IntegerNumberToken : IToken
-    {
-        public int Value { get; }
-
-        public IntegerNumberToken(int value)
+        public NumberToken(double value)
         {
             Value = value;
         }

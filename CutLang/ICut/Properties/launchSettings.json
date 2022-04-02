@@ -2,7 +2,7 @@
   "profiles": {
     "ICut": {
       "commandName": "Project",
-      "commandLineArgs": "vid.mp4 \"04:04-04:10 + 04:43-END + 00:30-00:32\""
+      "commandLineArgs": "vid.mp4 \"(04:04-04:10 + 04:43-END) >> 10 + 00:30-00:32\""
     }
   }
 }

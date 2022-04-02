@@ -3,4 +3,8 @@
     public interface IToken
     {
     }
+
+    public interface IProducesVideo
+    {
+    }
 }

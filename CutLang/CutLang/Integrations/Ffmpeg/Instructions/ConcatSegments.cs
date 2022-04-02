@@ -1,7 +1,5 @@
 ﻿using CutLang.Execution;
 using CutLang.Execution.Instruction;
-using System;
-using System.Diagnostics;
 using System.IO;
 
 namespace CutLang.Integrations.Ffmpeg.Instructions
@@ -13,23 +11,23 @@ namespace CutLang.Integrations.Ffmpeg.Instructions
             var segmentTwo = executionContext.SegmentStack.Pop();
             var segmentOne = executionContext.SegmentStack.Pop();
 
-            var tempListFile = $"{Guid.NewGuid()}.txt";
             var outputPath = executionContext.GetTempVideoPath();
 
             try
             {
-                File.WriteAllText(tempListFile, $"file '{segmentOne.File.FullName.Replace("\\", "/")}'\nfile '{segmentTwo.File.FullName.Replace("\\", "/")}'");
-                Process.Start("ffmpeg", $"-f concat -safe 0 -i \"{tempListFile}\" -c copy \"{outputPath}\"")
-                    .WaitForExit();
+                Utils.Run($"-i \"{segmentOne.File.FullName}\" -i \"{segmentTwo.File.FullName}\" -filter_complex \"[0:v] [0:a] [1:v] [1:a] concat=n=2:v=1:a=1 [v] [a]\" -map \"[v]\" -map \"[a]\" \"{outputPath}\"").Wait();
             }
             finally
             {
-                File.Delete(tempListFile);
                 File.Delete(segmentOne.File.FullName);
                 File.Delete(segmentTwo.File.FullName);
+                executionContext.SegmentStack.Push(new SegmentReference { File = new FileInfo(outputPath) });
             }
+        }
 
-            executionContext.SegmentStack.Push(new SegmentReference { File = new FileInfo(outputPath) });
+        public override string ToString()
+        {
+            return $"FFmpeg {nameof(ConcatSegments)}";
         }
     }
 }

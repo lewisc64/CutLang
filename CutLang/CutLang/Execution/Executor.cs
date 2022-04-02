@@ -37,22 +37,52 @@ namespace CutLang.Execution
                 }
                 yield return factoryProvider.CreateInstance<IConcatSegments>();
             }
+            else if (tree.Token is SpeedUpToken || tree.Token is SlowDownToken)
+            {
+                var modifySpeedInstruction = factoryProvider.CreateInstance<IModifySpeed>();
+
+                foreach (var instruction in Instructionise(factoryProvider, tree.Left))
+                {
+                    yield return instruction;
+                }
+
+                if (tree.Token is SpeedUpToken)
+                {
+                    modifySpeedInstruction.Modifier = ((NumberToken)tree.Right.Token).Value;
+                }
+                else
+                {
+                    modifySpeedInstruction.Modifier = 1 / ((NumberToken)tree.Right.Token).Value;
+                }
+
+                yield return modifySpeedInstruction;
+            }
             else
             {
                 throw new InstructioniseException($"Unrecognised token: {tree.Token}");
             }
         }
 
-        public FileInfo Execute(IEnumerable<IInstruction> instructions, FileInfo seedVideo)
+        public FileInfo Execute(IEnumerable<IInstruction> instructions, FileInfo seedVideo, Action<int, int, string> progressCallback = null)
         {
             var context = new ExecutionContext
             {
                 SeedVideo = seedVideo,
             };
 
+            var step = 1;
             foreach (var instruction in instructions)
             {
-                instruction.Execute(context);
+                progressCallback?.Invoke(step++, instructions.Count(), instruction.ToString());
+                try
+                {
+                    instruction.Execute(context);
+                }
+                catch (Exception)
+                {
+                    context.CleanUp();
+                    throw;
+                }
             }
 
             return context.SegmentStack.Single().File;
