@@ -77,7 +77,7 @@ namespace CutLang
                         {
                             throw new SyntaxParserException($"Expected {nameof(TimestampToken)} on the left side of {nameof(SpanToken)}, got {left.Token.GetType().Name}");
                         }
-                        
+
                         if (right.Token is not TimestampToken && right.Token is not EndOfVideoToken)
                         {
                             throw new SyntaxParserException($"Expected {nameof(TimestampToken)} on the right side of {nameof(SpanToken)}, got {right.Token.GetType().Name}");

@@ -35,7 +35,7 @@ namespace ICut
             var executor = new Executor();
             var instructions = executor.Instructionise(factoryProvider, tree).ToArray();
             var executionResultFile = executor.Execute(instructions, inputFile);
-            
+
             File.Move(executionResultFile.FullName, outputPath);
         }
     }
