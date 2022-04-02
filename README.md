@@ -1,13 +1,14 @@
 # CutLang
- Language describing how to cut up videos
+ Language describing how to cut up videos. Capable of very basic video editing on a single file.
 
 ## Requirements
 
-* FFMPEG.exe must be added to PATH.
+* ffmpeg.exe must be added to PATH. You can download it here: https://ffmpeg.org/download.html
+* .NET 5 must be installed.
 
 ## Usage
 
-Using a built executable from the ICut project:
+Using a built executable from the ICut project (icut.exe):
 
 `icut VIDEO PROGRAM`
 
