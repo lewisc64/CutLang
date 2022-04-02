@@ -2,33 +2,65 @@
 using CutLang.Execution;
 using CutLang.Execution.Instruction;
 using CutLang.Integrations.Ffmpeg.Instructions;
+using CutLang.Token;
 using System;
 using System.IO;
 using System.Linq;
+using static CutLang.Lexer;
+using static CutLang.SyntaxParser;
 
 namespace ICut
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
+            if (args.Count() != 2)
+            {
+                Console.WriteLine("Usage: icut VIDEO PROGRAM");
+                Console.WriteLine("Example: icut video.mp4 \"00:30-01:00\"");
+                return;
+            }
+
             var inputFile = new FileInfo(args[0]);
             var program = args[1];
             var outputPath = $"{Path.Join(inputFile.DirectoryName, Path.GetFileNameWithoutExtension(inputFile.Name))}_cut{inputFile.Extension}";
 
+            if (!File.Exists(inputFile.FullName))
+            {
+                WriteError($"{inputFile.FullName} does not exist.");
+                return;
+            }
+
             if (File.Exists(outputPath))
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.Error.WriteLine($"'{outputPath}' already exists.");
-                Console.ResetColor();
+                WriteError($"'{outputPath}' already exists.");
                 return;
             }
 
             var lexer = new Lexer(program);
-            var tokens = lexer.Tokenise().ToArray();
+            IToken[] tokens;
+            try
+            {
+                tokens = lexer.Tokenise().ToArray();
+            }
+            catch (LexerException ex)
+            {
+                WriteError($"Lexical error: {ex.Message}");
+                return;
+            }
 
             var syntaxParser = new SyntaxParser(tokens);
-            var tree = syntaxParser.MakeTree();
+            Node tree;
+            try
+            {
+                tree = syntaxParser.MakeTree();
+            }
+            catch (SyntaxParserException ex)
+            {
+                WriteError($"Syntax error: {ex.Message}");
+                return;
+            }
 
             var factoryProvider = new InstructionFactoryProvider();
             factoryProvider.SetFactory<IExtractSegment>(() => new ExtractSegment());
@@ -44,6 +76,13 @@ namespace ICut
             };
 
             File.Move(executor.Execute(instructions, inputFile, progressCallback: progressCallback).FullName, outputPath);
+        }
+
+        public static void WriteError(string message)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Error.WriteLine(message);
+            Console.ResetColor();
         }
     }
 }
