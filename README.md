@@ -8,7 +8,7 @@
 
 ## Usage
 
-Using a built executable from the ICut project (icut.exe):
+Using a built executable from the ICut project ([icut.exe](https://github.com/lewisc64/CutLang/releases/latest)):
 
 `icut VIDEO PROGRAM`
 
