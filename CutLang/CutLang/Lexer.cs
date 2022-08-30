@@ -61,9 +61,35 @@ namespace CutLang
                             NextChar();
                             return new EndOfVideoToken();
                         }
-                        throw new LexerException($"Expected 'D' as part of {nameof(EndOfVideoToken)} at position {_position}, instead got '{CurrentChar}'.");
+                        throw new LexerException($"Expected 'D' as part of 'END' at position {_position}, instead got '{CurrentChar}'.");
                     }
-                    throw new LexerException($"Expected 'N' as part of {nameof(EndOfVideoToken)} at position {_position}, instead got '{CurrentChar}'.");
+                    throw new LexerException($"Expected 'N' as part of 'END' at position {_position}, instead got '{CurrentChar}'.");
+                }
+
+                if (CurrentChar == 'S')
+                {
+                    NextChar();
+                    if (CurrentChar == 'T')
+                    {
+                        NextChar();
+                        if (CurrentChar == 'A')
+                        {
+                            NextChar();
+                            if (CurrentChar == 'R')
+                            {
+                                NextChar();
+                                if (CurrentChar == 'T')
+                                {
+                                    NextChar();
+                                    return new TimestampToken(0, 0, 0);
+                                }
+                                throw new LexerException($"Expected 'T' as part of 'START' at position {_position}, instead got '{CurrentChar}'.");
+                            }
+                            throw new LexerException($"Expected 'R' as part of 'START' at position {_position}, instead got '{CurrentChar}'.");
+                        }
+                        throw new LexerException($"Expected 'A' as part of 'START' at position {_position}, instead got '{CurrentChar}'.");
+                    }
+                    throw new LexerException($"Expected 'T' as part of 'START' at position {_position}, instead got '{CurrentChar}'.");
                 }
 
                 if (CurrentChar == '(')
@@ -86,7 +112,7 @@ namespace CutLang
                         NextChar();
                         return new SpeedUpToken();
                     }
-                    throw new LexerException($"Expected '>' as part of {nameof(SpeedUpToken)} at position {_position}, instead got '{CurrentChar}'.");
+                    throw new LexerException($"Expected '>' as part of '>>' at position {_position}, instead got '{CurrentChar}'.");
                 }
 
                 if (CurrentChar == '<')
@@ -97,7 +123,7 @@ namespace CutLang
                         NextChar();
                         return new SlowDownToken();
                     }
-                    throw new LexerException($"Expected '<' as part of {nameof(SlowDownToken)} at position {_position}, instead got '{CurrentChar}'.");
+                    throw new LexerException($"Expected '<' as part of '<<' at position {_position}, instead got '{CurrentChar}'.");
                 }
 
                 if (CurrentChar == ' ')
