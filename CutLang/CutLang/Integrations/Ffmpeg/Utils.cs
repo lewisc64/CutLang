@@ -14,13 +14,13 @@ namespace CutLang.Integrations.Ffmpeg
 
         public static async Task<TimeSpan> GetDuration(string path)
         {
-            var args = $"-v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 {path}";
+            var args = $"-v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 \"{path}\"";
             return TimeSpan.FromSeconds(double.Parse(await RunProcess("ffprobe", args)));
         }
 
         public static async Task<int> GetTimebase(string path)
         {
-            var args = $"-v 0 -of compact=p=0:nk=1 -show_entries stream=time_base -select_streams v:0 {path}";
+            var args = $"-v 0 -of compact=p=0:nk=1 -show_entries stream=time_base -select_streams v:0 \"{path}\"";
             return int.Parse((await RunProcess("ffprobe", args)).Split("/").Last());
         }
 
