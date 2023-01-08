@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace CutLang.Execution
 {
@@ -63,7 +64,7 @@ namespace CutLang.Execution
             }
         }
 
-        public FileInfo Execute(IEnumerable<IInstruction> instructions, FileInfo seedVideo, Action<int, int, string> progressCallback = null)
+        public async Task<FileInfo> Execute(IEnumerable<IInstruction> instructions, FileInfo seedVideo, Action<int, int, string> progressCallback = null)
         {
             var context = new ExecutionContext
             {
@@ -76,7 +77,7 @@ namespace CutLang.Execution
                 progressCallback?.Invoke(step++, instructions.Count(), instruction.ToString());
                 try
                 {
-                    instruction.Execute(context);
+                    await instruction.Execute(context);
                 }
                 catch (Exception)
                 {

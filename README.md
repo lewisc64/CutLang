@@ -3,8 +3,8 @@
 
 ## Requirements
 
-* ffmpeg.exe must be added to PATH. You can download it here: https://ffmpeg.org/download.html
-* .NET 5 must be installed.
+* ffmpeg.exe and ffprobe.exe must be added to PATH. You can download them here: https://ffmpeg.org/download.html
+* .NET 6 must be installed.
 
 ## Usage
 

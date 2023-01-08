@@ -6,6 +6,7 @@ using CutLang.Token;
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using static CutLang.Lexer;
 using static CutLang.SyntaxParser;
 
@@ -13,7 +14,7 @@ namespace ICut
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             if (args.Count() != 2)
             {
@@ -64,7 +65,7 @@ namespace ICut
 
             var factoryProvider = new InstructionFactoryProvider();
             factoryProvider.SetFactory<IExtractSegment>(() => new ExtractSegment());
-            factoryProvider.SetFactory<IConcatSegments>(() => new ConcatSegments());
+            factoryProvider.SetFactory<IConcatSegments>(() => new ConcatSegmentsWithDemuxer());
             factoryProvider.SetFactory<IModifySpeed>(() => new ModifySpeed());
 
             var executor = new Executor();
@@ -75,7 +76,7 @@ namespace ICut
                 Console.WriteLine($"Step {step}/{steps}: {instructionName}");
             };
 
-            File.Move(executor.Execute(instructions, inputFile, progressCallback: progressCallback).FullName, outputPath);
+            File.Move((await executor.Execute(instructions, inputFile, progressCallback: progressCallback)).FullName, outputPath);
         }
 
         public static void WriteError(string message)

@@ -2,6 +2,7 @@
 using CutLang.Execution.Instruction;
 using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace CutLang.Integrations.Ffmpeg.Instructions
 {
@@ -11,13 +12,13 @@ namespace CutLang.Integrations.Ffmpeg.Instructions
 
         public TimeSpan End { get; set; }
 
-        public void Execute(ExecutionContext executionContext)
+        public async Task Execute(ExecutionContext executionContext)
         {
             var outputPath = executionContext.GetTempVideoPath();
 
             try
             {
-                Utils.Run($"-i \"{executionContext.SeedVideo.FullName}\" -ss {Start.TotalSeconds} -to {End.TotalSeconds} -c copy \"{outputPath}\"").Wait();
+                await Utils.Run($"-ss {Start.TotalSeconds} -i \"{executionContext.SeedVideo.FullName}\" -t {End.TotalSeconds - Start.TotalSeconds} -c copy -avoid_negative_ts 1 \"{outputPath}\"");
             }
             finally
             {

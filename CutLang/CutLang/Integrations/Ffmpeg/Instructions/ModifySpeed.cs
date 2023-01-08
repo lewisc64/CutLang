@@ -3,6 +3,7 @@ using CutLang.Execution.Instruction;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace CutLang.Integrations.Ffmpeg.Instructions
 {
@@ -10,10 +11,12 @@ namespace CutLang.Integrations.Ffmpeg.Instructions
     {
         public double Modifier { get; set; }
 
-        public void Execute(ExecutionContext executionContext)
+        public async Task Execute(ExecutionContext executionContext)
         {
             var segment = executionContext.SegmentStack.Pop();
             var outputPath = executionContext.GetTempVideoPath();
+
+            var seedVideoTimebase = await Utils.GetTimebase(executionContext.SeedVideo.FullName);
 
             try
             {
@@ -38,7 +41,7 @@ namespace CutLang.Integrations.Ffmpeg.Instructions
                         break;
                     }
                 }
-                Utils.Run($"-i \"{segment.File.FullName}\" -filter:v \"setpts = {1 / Modifier} * PTS\" -filter:a \"{string.Join(", ", audioTempos.Select(x => $"atempo={x}"))}\" \"{outputPath}\"").Wait();
+                await Utils.Run($"-i \"{segment.File.FullName}\" -filter:v \"setpts = {1 / Modifier} * PTS\" -filter:a \"{string.Join(", ", audioTempos.Select(x => $"atempo={x}"))}\" -video_track_timescale {seedVideoTimebase} \"{outputPath}\"");
             }
             finally
             {

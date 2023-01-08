@@ -1,7 +1,9 @@
-﻿namespace CutLang.Execution.Instruction
+﻿using System.Threading.Tasks;
+
+namespace CutLang.Execution.Instruction
 {
     public interface IInstruction
     {
-        public void Execute(ExecutionContext executionContext);
+        Task Execute(ExecutionContext executionContext);
     }
 }

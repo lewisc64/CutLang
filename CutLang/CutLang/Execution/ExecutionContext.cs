@@ -13,7 +13,12 @@ namespace CutLang.Execution
 
         public string GetTempVideoPath()
         {
-            return Path.Join(Path.GetTempPath(), $"{Guid.NewGuid()}.mp4");
+            return GetTempFilePath(SeedVideo.Extension[1..]);
+        }
+
+        public string GetTempFilePath(string extension)
+        {
+            return Path.Join(Path.GetTempPath(), $"{Guid.NewGuid()}.{extension}");
         }
 
         public void CleanUp()

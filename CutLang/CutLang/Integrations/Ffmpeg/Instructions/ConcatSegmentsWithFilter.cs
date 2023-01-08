@@ -1,12 +1,13 @@
 ﻿using CutLang.Execution;
 using CutLang.Execution.Instruction;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace CutLang.Integrations.Ffmpeg.Instructions
 {
-    public class ConcatSegments : IConcatSegments
+    public class ConcatSegmentsWithFilter : IConcatSegments
     {
-        public void Execute(ExecutionContext executionContext)
+        public async Task Execute(ExecutionContext executionContext)
         {
             var segmentTwo = executionContext.SegmentStack.Pop();
             var segmentOne = executionContext.SegmentStack.Pop();
@@ -15,7 +16,7 @@ namespace CutLang.Integrations.Ffmpeg.Instructions
 
             try
             {
-                Utils.Run($"-i \"{segmentOne.File.FullName}\" -i \"{segmentTwo.File.FullName}\" -filter_complex \"[0:v] [0:a] [1:v] [1:a] concat=n=2:v=1:a=1 [v] [a]\" -map \"[v]\" -map \"[a]\" \"{outputPath}\"").Wait();
+                await Utils.Run($"-i \"{segmentOne.File.FullName}\" -i \"{segmentTwo.File.FullName}\" -filter_complex \"[0:v] [0:a] [1:v] [1:a] concat=n=2:v=1:a=1 [v] [a]\" -map \"[v]\" -map \"[a]\" \"{outputPath}\"");
             }
             finally
             {
@@ -27,7 +28,7 @@ namespace CutLang.Integrations.Ffmpeg.Instructions
 
         public override string ToString()
         {
-            return $"FFmpeg {nameof(ConcatSegments)}";
+            return $"FFmpeg {nameof(ConcatSegmentsWithFilter)}";
         }
     }
 }
