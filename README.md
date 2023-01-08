@@ -25,6 +25,7 @@ Currently supports the following:
 * Cutting
   * Extract video between 30 seconds and 1 minute: `00:30-01:00`
   * Extract video between a precise time and the end of the video: `32:12.325-END`
+    * Note: this will only cut on a video keyframe, so may appear inaccurate.
 * Concatenating
   * Join two cuts together: `00:30-01:00 + 02:00-03:00`
 * Speeding up
