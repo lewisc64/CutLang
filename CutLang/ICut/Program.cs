@@ -14,13 +14,28 @@ namespace ICut
 {
     public class Program
     {
+        public const string VerticalFlag = "--vertical";
+
+        public static readonly string[] ValidFlags = new[] { VerticalFlag };
+
         public static async Task Main(string[] args)
         {
-            if (args.Count() != 2)
+            if (args.Count() < 2)
             {
-                Console.WriteLine("Usage: icut VIDEO PROGRAM");
+                Console.WriteLine("Usage: icut VIDEO PROGRAM [flags?]");
                 Console.WriteLine("Example: icut video.mp4 \"00:30-01:00\"");
+                Console.WriteLine("Valid flags:");
+                Console.WriteLine($" {VerticalFlag}: crops video to a 9:16 ratio");
                 return;
+            }
+
+            foreach (var arg in args.Skip(2))
+            {
+                if (!ValidFlags.Contains(arg))
+                {
+                    WriteError($"Unknown flag: {arg}");
+                    return;
+                }
             }
 
             var inputFile = new FileInfo(args[0]);
@@ -76,7 +91,18 @@ namespace ICut
                 Console.WriteLine($"Step {step}/{steps}: {instructionName}");
             };
 
-            File.Move((await executor.Execute(instructions, inputFile, progressCallback: progressCallback)).FullName, outputPath);
+            var outputFile = await executor.Execute(instructions, inputFile, progressCallback: progressCallback);
+
+            if (args.Contains(VerticalFlag))
+            {
+                Console.WriteLine("Done, cropping video to 9:16...");
+                await CutLang.Integrations.Ffmpeg.Utils.Run($"-i \"{outputFile.FullName}\" -vf \"crop = ih * (9 / 16):ih\" -crf 21 -c:a copy \"{outputPath}\"");
+                File.Delete(outputFile.FullName);
+            }
+            else
+            {
+                File.Move(outputFile.FullName, outputPath);
+            }
         }
 
         public static void WriteError(string message)

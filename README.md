@@ -10,13 +10,17 @@
 
 Using a built executable from the ICut project ([icut.exe](https://github.com/lewisc64/CutLang/releases/latest)):
 
-`icut VIDEO PROGRAM`
+`icut VIDEO PROGRAM [flags?]`
 
 Example:
 
 `icut video.mp4 "00:30-01:00"`
 
 Output would be saved to `video_cut.mp4`.
+
+### Flags
+
+* --vertical: crops output video to a 9:16 ratio.
 
 ### Queries
 
